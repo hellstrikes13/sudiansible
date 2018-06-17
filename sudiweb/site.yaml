@@ -1,0 +1,19 @@
+---
+- name: apply common configs
+  hosts: everyone
+  user: root
+  # become: yes
+  # become_method: sudo
+
+  roles:
+    - common
+
+- name: configure and deploy apache2 on web
+  hosts: webservers
+  user: root
+  #  become: yes
+  #  become_method: sudo
+
+  roles:
+    - web
+

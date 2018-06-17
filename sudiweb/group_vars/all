@@ -1,0 +1,5 @@
+---
+ntp1_srv: 0.debian.pool.ntp.org
+ntp2_srv: 1.debian.pool.ntp.org
+dns_ns1: 8.8.8.8
+dns_ns2: 8.8.4.4
