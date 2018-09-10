@@ -1,0 +1,52 @@
+---
+- hosts: 127.0.0.1
+  gather_facts: no
+  tasks:
+  - name: create VG swiftdata
+    lvg:
+      vg: swiftdata
+      pvs: /dev/sdb,/dev/sdc
+      state: present
+
+  - name: create LV disk1 disk2
+    lvol:
+      vg: swiftdata
+      lv: "{{ item }}"
+      size: 50%VG
+#      pvs: /dev/sdb,dev/sdc
+      active: yes
+      state: present
+    with_items:
+    - disk1
+    - disk2
+  
+  - name: create xfs filesystem
+    filesystem:
+      fstype: xfs
+      dev: "/dev/swiftdata/{{ item }}"
+    with_items:
+    - disk1
+    - disk2
+
+  - name: create a mount point
+    file:
+      path: "/srv/node/{{ item }}"
+      state: directory 
+      recurse: yes
+    with_items:
+    - data1
+    - data2
+
+  - name: mount up data1 for swift object storage
+    mount:
+      src: "/dev/mapper/swiftdata-{{ item.mntpth }}"
+      path: "/srv/node/{{ item.dsk }}"
+      fstype: xfs
+      opts: noatime,nodiratime,nobarrier,logbufs=8 
+      dump: 0
+      passno: 2
+      state: mounted       
+    with_items:
+    - { mntpth: 'disk1',dsk: 'data1' }
+    - { mntpth: 'disk2',dsk: 'data2' }
+   
