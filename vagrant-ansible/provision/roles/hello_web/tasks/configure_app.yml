@@ -1,0 +1,43 @@
+---
+- name: create the required path
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - /webapps/
+    - /webapps/devops
+    - /opt/scripts
+
+- name: clone the repo
+  git:
+    repo: https://bitbucket.org/azneita/devops-challenge/src/master/
+    dest: /webapps/devops
+
+- name: copy the check_app script
+  copy:
+    src: check_app.py
+    dest: /opt/scripts/
+    mode: 0755
+
+- name: copy the check_app script
+  copy:
+    src: sudiapp_logs
+    dest: /etc/logrotate.d
+    mode: 0644
+
+- name: run the app
+  shell: "sudo -u sudi python /webapps/devops/app.py 2>> /var/log/sudiapp.log &"
+
+- name: install the cron job for app health monitoring
+  cron:
+    name: app check
+    job: /usr/bin/python /opt/scripts/check_app.py &
+    minute: "*/1"
+
+- name: forcibly run the logrotate
+  shell: /usr/sbin/logrotate -f -v /etc/logrotate.conf
+
+- name: app check 2
+  pause:
+    prompt: "waiting for the app to come UP..."
+    minutes: 1

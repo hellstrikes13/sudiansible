@@ -1,0 +1,27 @@
+---
+- name: set the timezone in UTC
+  file:
+    src: /usr/share/zoneinfo/Asia/Kolkata
+    dest: /etc/localtime
+    force: yes
+    state: link
+
+- name: set the timezone
+  shell: dpkg-reconfigure -f noninteractive tzdata
+
+- name: create the user
+  user:
+    name: sudi
+    shell: /bin/bash
+    state: present
+
+
+- name: install python-pip
+  apt:
+    name: python-pip
+    state: present
+
+- name: install flask Werkzeug python modules
+  pip:
+    name: flask
+    state: present
